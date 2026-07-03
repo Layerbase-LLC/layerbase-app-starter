@@ -1,0 +1,29 @@
+{
+  "name": "layerbase-app-starter-nextjs",
+  "version": "0.1.0",
+  "description": "Minimal todo app demonstrating the Layerbase app contract with Next.js (App Router, standalone output).",
+  "private": true,
+  "author": "Bob Bass",
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "check": "tsc --noEmit",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "next": "^16.0.0",
+    "pg": "^8.16.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "prettier": "^3.5.0",
+    "typescript": "^5.8.0"
+  }
+}

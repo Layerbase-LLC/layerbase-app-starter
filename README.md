@@ -1,16 +1,34 @@
 # Layerbase App Starter
 
-Two complete, minimal Layerbase apps - the same todo list, implemented twice:
+Two complete, minimal Layerbase apps - the same todo list, implemented twice.
+**Each folder is a self-contained repo-in-waiting**: copy one out and it comes
+with everything, including its own publish workflow.
 
 | Example | Stack |
 | --- | --- |
 | [`node-vite/`](node-vite/) | Hono server + React (Vite) frontend, one process |
 | [`nextjs/`](nextjs/) | Next.js App Router, standalone output |
 
-Each is **one stateless container** that does everything a hosted Layerbase
-app needs to do, in a few hundred lines. Copy the folder that matches your
-stack, replace the todo parts with your real app, and the platform-facing
-plumbing is already done.
+## Make one yours
+
+Grab just the folder you want (no monorepo, no git history):
+
+```bash
+pnpx tiged Layerbase-LLC/layerbase-app-starter/node-vite my-app
+# or: pnpx tiged Layerbase-LLC/layerbase-app-starter/nextjs my-app
+
+cd my-app && git init && git add -A && git commit -m "init from layerbase-app-starter"
+```
+
+Push it to your own GitHub repo and the bundled workflow
+(`.github/workflows/publish.yml`) activates on its own: every push to `main`
+builds the image and publishes it to **your** GHCR namespace with the tags and
+OCI version label the Layerbase platform expects. (Inside this monorepo those
+per-folder workflows are dormant - GitHub only runs workflows at a repo root;
+the root workflow here builds our demo images.)
+
+Then replace the todo parts with your real app. The platform-facing plumbing
+is already done.
 
 ## The contract
 
@@ -42,12 +60,6 @@ pnpm dev
 ```
 
 Each example's README has the stack-specific details.
-
-## Ship it
-
-Pushing to `main` builds both images and publishes them to GHCR with a `v1`
-tag (the tag a Layerbase catalog entry pins) plus the exact semver as an
-immutable release identity. See `.github/workflows/publish.yml`.
 
 ## Hosting on Layerbase
 

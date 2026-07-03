@@ -1,6 +1,6 @@
 # Layerbase App Starter - Node + Vite
 
-The todo app on the [Layerbase app contract](../README.md): a Hono server
+The todo app on the [Layerbase app contract](https://github.com/Layerbase-LLC/layerbase-app-starter#the-contract): a Hono server
 serving its API and the built React frontend from one process.
 
 Where each piece of the contract lives:

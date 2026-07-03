@@ -1,6 +1,6 @@
 # Layerbase App Starter - Next.js
 
-The todo app on the [Layerbase app contract](../README.md), Next.js edition
+The todo app on the [Layerbase app contract](https://github.com/Layerbase-LLC/layerbase-app-starter#the-contract), Next.js edition
 (App Router, standalone output).
 
 Where each piece of the contract lives:
@@ -25,3 +25,10 @@ pnpm build && pnpm start   # production mode
 Note: route handlers and the page are marked `force-dynamic` - todos change
 per request, and it keeps `next build` from trying to prerender against a
 database that does not exist on the build machine.
+
+## Make it yours
+
+This folder is a complete repo: `pnpx tiged Layerbase-LLC/layerbase-app-starter/nextjs my-app`,
+push it to your own GitHub repository, and the bundled
+`.github/workflows/publish.yml` starts publishing your image to your GHCR
+namespace on every push to `main`.

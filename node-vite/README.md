@@ -15,7 +15,7 @@ Where each piece of the contract lives:
 
 ```bash
 spindb create todos --engine postgresql
-echo 'DATABASE_URL=postgresql://...' > .env
+cp .env.example .env   # then set DATABASE_URL to its connection string
 
 pnpm install
 pnpm dev       # API server (tsx watch)

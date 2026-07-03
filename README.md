@@ -32,8 +32,8 @@ Bootstrap a Layerbase app for me.
    idempotent), GET /health, SIGTERM draining, the multi-stage Dockerfile,
    and .github/workflows/publish.yml.
 5. For local dev, create a Postgres with spindb
-   (spindb create [APP_NAME] --engine postgresql) and put its connection
-   string in .env as DATABASE_URL.
+   (spindb create [APP_NAME] --engine postgresql) then copy .env.example to .env and
+   set DATABASE_URL to its connection string.
 6. Create a GitHub repository named [APP_NAME] and push to main - the bundled
    workflow publishes the image to my GHCR namespace automatically.
 
@@ -59,8 +59,8 @@ Bootstrap a Layerbase app for me.
    app/health/route.ts, the multi-stage Dockerfile, and
    .github/workflows/publish.yml.
 4. For local dev, create a Postgres with spindb
-   (spindb create [APP_NAME] --engine postgresql) and put its connection
-   string in .env as DATABASE_URL.
+   (spindb create [APP_NAME] --engine postgresql) then copy .env.example to .env and
+   set DATABASE_URL to its connection string.
 5. Create a GitHub repository named [APP_NAME] and push to main - the bundled
    workflow publishes the image to my GHCR namespace automatically.
 
@@ -111,7 +111,7 @@ cd node-vite   # or nextjs
 
 # A local Postgres (Layerbase's spindb CLI, or bring your own)
 spindb create todos --engine postgresql
-echo 'DATABASE_URL=postgresql://...' > .env
+cp .env.example .env   # then set DATABASE_URL to its connection string
 
 pnpm install
 pnpm dev

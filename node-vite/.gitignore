@@ -2,5 +2,6 @@ node_modules/
 dist-web/
 .env
 .env.*
+!.env.example
 *.log
 .DS_Store

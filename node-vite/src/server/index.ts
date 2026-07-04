@@ -8,8 +8,10 @@ import { migrate, pool } from './db.ts'
 // 1. Listen on PORT, bound to HOST (the platform sets HOST=0.0.0.0 so its
 //    proxy can reach the container; TLS and domains are handled outside).
 // 2. Persist ONLY to DATABASE_URL (src/server/db.ts) and migrate on boot.
-// 3. Answer GET /health - the platform's reconciler probes it and recreates
-//    the container when it stops answering.
+// 3. Answer TWO health endpoints (see the Dockerfile HEALTHCHECK + README):
+//    GET /healthz = liveness, no DB, instant 200 - probed by the container's
+//    own Docker HEALTHCHECK; GET /health = readiness, pings the DB - probed by
+//    the platform reconciler, which can revive the backing store.
 // 4. Exit cleanly on SIGTERM so redeploys drain instead of dropping requests.
 
 const port = Number(process.env.PORT ?? 4000)
@@ -17,6 +19,15 @@ const host = process.env.HOST ?? '127.0.0.1'
 
 const app = new Hono()
 
+// Liveness: no auth, no database, instant 200. The container's own Docker
+// HEALTHCHECK probes THIS, so keep it dependency-free - a database blip must
+// never make a serving container report unhealthy (the failure mode that took
+// down Layerbase's own session-replay app).
+app.get('/healthz', (c) => c.json({ ok: true }))
+
+// Readiness: pings the database, so a 200 means "actually able to serve". The
+// platform's reconciler probes this and recreates the container - and revives
+// the backing store - when it stops answering.
 app.get('/health', async (c) => {
   await pool.query('SELECT 1')
   return c.json({ ok: true })

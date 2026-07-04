@@ -29,7 +29,8 @@ Bootstrap a Layerbase app for me.
    React, swap the Vite plugin and rewrite src/web accordingly.
 4. Do NOT change the platform contract pieces: the PORT/HOST binding, the
    idempotent boot migration against DATABASE_URL (extend the schema, keep it
-   idempotent), GET /health, SIGTERM draining, the multi-stage Dockerfile,
+   idempotent), the GET /healthz (liveness) + GET /health (readiness) split,
+   the Dockerfile HEALTHCHECK, SIGTERM draining, the multi-stage Dockerfile,
    and .github/workflows/publish.yml.
 5. For local dev, create a Postgres with spindb
    (spindb create [APP_NAME] --engine postgresql) then copy .env.example to .env and
@@ -56,7 +57,8 @@ Bootstrap a Layerbase app for me.
 3. Do NOT change the platform contract pieces: the standalone output config,
    the idempotent boot migration in lib/db.ts wired through
    instrumentation.ts (extend the schema, keep it idempotent),
-   app/health/route.ts, the multi-stage Dockerfile, and
+   app/healthz/route.ts (liveness) + app/health/route.ts (readiness), the
+   Dockerfile HEALTHCHECK, the multi-stage Dockerfile, and
    .github/workflows/publish.yml.
 4. For local dev, create a Postgres with spindb
    (spindb create [APP_NAME] --engine postgresql) then copy .env.example to .env and
@@ -97,12 +99,39 @@ about it. That takes exactly five things, all demonstrated in both examples:
 | --- | --- |
 | Listen on `PORT`, bound to all interfaces | The platform's proxy terminates TLS and routes to your container |
 | Persist ONLY to `DATABASE_URL`, migrate on boot, idempotently | The container is disposable - every redeploy replaces it |
-| Answer `GET /health` | The platform probes it and self-heals your app when it stops answering |
+| Answer `GET /healthz` (liveness) and `GET /health` (readiness) | Two probes with two jobs - see [Health checks](#health-checks) below |
 | Exit cleanly on `SIGTERM` | Redeploys drain in-flight requests instead of dropping them |
 | Ship as a prebuilt image with an OCI version label | Nothing builds on boot; the platform detects available updates |
 
 Everything else - TLS, domains, DNS, the database itself, backups, restarts -
 is the platform's job, not yours.
+
+## Health checks
+
+An app answers **two** health endpoints, and they must not be the same handler:
+
+| Endpoint | Job | Touches the DB? | Who probes it |
+| --- | --- | --- | --- |
+| `GET /healthz` | Liveness - is the process serving HTTP at all? | **No.** Instant 200, no auth, no I/O | The **image's own `HEALTHCHECK`** in the `Dockerfile` (what `docker inspect` reports) |
+| `GET /health` | Readiness - can it actually serve, DB and all? | **Yes.** Pings the database | The **Layerbase platform** reconciler, which recreates the container and can revive the backing store |
+
+Why split them? The platform injects **no** Docker healthcheck, so your image's
+`HEALTHCHECK` is what Docker reports on its own. If that healthcheck probes a
+DB-dependent path, one database blip flips a container that is serving fine to
+permanently "unhealthy". Keep liveness (`/healthz`) dependency-free so it only
+fails when the process is genuinely wedged; let the platform's readiness probe
+(`/health`) be the one that cares about the database, because its remediation
+can revive that database.
+
+Two rules the `HEALTHCHECK` lines in both examples follow, both learned the
+hard way in production:
+
+- **Read the port from `PORT`** (`http://127.0.0.1:${PORT}/healthz`), never a
+  hardcoded literal. The platform allocates the port and injects it as `PORT`;
+  a hardcoded port probes the wrong place and always reports unhealthy.
+- **Use a dependency the runtime image actually has.** These slim images have
+  no `curl`, so the probe uses Node's built-in global `fetch`
+  (`node -e "fetch(...)"`), not `curl`.
 
 ## Run an example locally
 

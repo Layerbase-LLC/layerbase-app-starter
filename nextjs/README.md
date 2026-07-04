@@ -9,7 +9,8 @@ Where each piece of the contract lives:
 | --- | --- |
 | `PORT` / bind all interfaces | Next standalone reads `PORT`; `HOSTNAME=0.0.0.0` pinned in the `Dockerfile` |
 | `DATABASE_URL` + idempotent boot migration | `lib/db.ts`, run from `instrumentation.ts` (Next's boot hook) |
-| `GET /health` | `app/health/route.ts` |
+| `GET /healthz` liveness (no DB) | `app/healthz/route.ts`, probed by the `Dockerfile` `HEALTHCHECK` |
+| `GET /health` readiness (pings DB) | `app/health/route.ts`, probed by the platform |
 | `SIGTERM` draining | handled by Next's standalone server |
 | Prebuilt image | `Dockerfile` (multi-stage, `output: 'standalone'`) |
 

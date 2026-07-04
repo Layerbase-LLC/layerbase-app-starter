@@ -14,6 +14,13 @@ export function getPool(): pg.Pool {
       )
     }
     pool = new pg.Pool({ connectionString, max: 10 })
+    // A dropped idle connection (DB restart, failover, network blip) surfaces
+    // as a pool 'error' event; with no listener, Node treats it as uncaught and
+    // kills the process over a transient DB blip - taking /healthz down with it.
+    // Log and swallow: the pool reconnects on the next query, liveness stays up.
+    pool.on('error', (error) => {
+      console.error('postgres pool error (idle client):', error.message)
+    })
   }
   return pool
 }

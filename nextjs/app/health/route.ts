@@ -1,8 +1,10 @@
 import { getPool } from '@/lib/db'
 
-// The platform's reconciler probes GET /health and recreates the container
-// when it stops answering. Include a database ping so "healthy" means
-// "actually able to serve", not just "process exists".
+// Readiness: the platform's reconciler probes GET /health and recreates the
+// container - and revives the backing store - when it stops answering. The
+// database ping makes "healthy" mean "actually able to serve", not just
+// "process exists". Pure liveness for the container's own Docker HEALTHCHECK
+// lives in app/healthz/route.ts (no DB, so a DB blip can't report unhealthy).
 export const dynamic = 'force-dynamic'
 
 export async function GET() {

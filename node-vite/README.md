@@ -9,7 +9,8 @@ Where each piece of the contract lives:
 | --- | --- |
 | `PORT` / `HOST` binding | `src/server/index.ts` |
 | `DATABASE_URL` + idempotent boot migration | `src/server/db.ts` |
-| `GET /health` | `src/server/index.ts` |
+| `GET /healthz` liveness (no DB) | `src/server/index.ts`, probed by the `Dockerfile` `HEALTHCHECK` |
+| `GET /health` readiness (pings DB) | `src/server/index.ts`, probed by the platform |
 | `SIGTERM` draining | `src/server/index.ts` |
 | Prebuilt image | `Dockerfile` (multi-stage; frontend built to `dist-web/`) |
 
